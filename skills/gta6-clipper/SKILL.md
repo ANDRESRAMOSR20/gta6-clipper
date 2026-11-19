@@ -14,6 +14,10 @@ so it runs on the user's Claude subscription, or on a local model through Ollama
 
 ## 0. "Set up the GTA 6 clipper"
 
+On Windows this Mac version will not work: tell the user to install the Windows version
+(https://github.com/vossashtonai/gta6-clipper-windows, one PowerShell command:
+`irm https://raw.githubusercontent.com/vossashtonai/gta6-clipper-windows/main/install.ps1 | iex`).
+
 Run `bash "$S/scripts/setup.sh"`. It checks Homebrew, ffmpeg, whisper-cpp, deno, uv, the Python venv
 (yt-dlp, OpenCV, Pillow), the Whisper model and the face detector, installs what's missing and prints
 READY or what is still missing. Tell the user in plain words what was installed and that it's ready.

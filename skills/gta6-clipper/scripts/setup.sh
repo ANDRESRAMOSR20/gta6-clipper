@@ -13,7 +13,13 @@ fail() { printf "  [MISSING] %s\n" "$1"; FAILED=1; }
 FAILED=0
 
 echo "GTA 6 Clipper setup"
-if [[ "$(uname)" != "Darwin" ]]; then echo "Mac only for now."; exit 1; fi
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "This is the Mac version. On Windows, install the Windows version instead:"
+  echo "  Open PowerShell (Start -> type PowerShell) and paste:"
+  echo "  irm https://raw.githubusercontent.com/vossashtonai/gta6-clipper-windows/main/install.ps1 | iex"
+  echo "  (or see https://github.com/vossashtonai/gta6-clipper-windows)"
+  exit 1
+fi
 
 # 1. Homebrew
 if command -v brew >/dev/null 2>&1; then ok "Homebrew"; else
