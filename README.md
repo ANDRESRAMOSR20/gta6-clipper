@@ -7,7 +7,7 @@ Two free Claude Code skills that turn GTA 6 streams into ready-to-post vertical 
 
 Every clip comes out 1080x1920: facecam on top, gameplay below, a hook title, word-by-word captions, and a post caption with hashtags.
 
-**Mac only for now.**
+**Mac version.** On Windows? Use the Windows version: https://github.com/vossashtonai/gta6-clipper-windows
 
 ## Install
 
