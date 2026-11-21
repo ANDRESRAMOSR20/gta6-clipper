@@ -62,14 +62,15 @@ if [[ ! -x "$VENV/bin/python" ]]; then inst "Python 3.12 environment"; "$UV" ven
 "$UV" pip install --python "$VENV/bin/python" -q -U "yt-dlp[default]" opencv-python-headless pillow numpy >/dev/null 2>&1 \
   && ok "Python packages (yt-dlp, opencv, pillow, numpy)" || fail "Python packages"
 
-# 5. Whisper model (speech -> text, runs on this Mac). Reuse an existing one if present.
+# 5. Whisper model (speech -> text, runs on this computer). Multilingual, so English and Spanish streams
+#    both work (language is auto-detected per stream). Reuse an existing one if present.
 WHISPER_MODEL=""
-for m in "$MODELS/ggml-small.en.bin" "$MODELS/ggml-small.bin" "$HOME/.cache/whisper-cpp/ggml-small.en.bin" "$HOME/.cache/whisper-cpp/ggml-small.bin"; do
-  [[ -f "$m" ]] && WHISPER_MODEL="$m" && break; done
+for m in "$MODELS/ggml-small.bin" "$HOME/.cache/whisper-cpp/ggml-small.bin"; do
+  [[ -s "$m" ]] && WHISPER_MODEL="$m" && break; done
 if [[ -z "$WHISPER_MODEL" ]]; then
-  inst "Whisper small.en model (~465 MB)"
-  curl -L -s -o "$MODELS/ggml-small.en.bin" https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.en.bin \
-    && WHISPER_MODEL="$MODELS/ggml-small.en.bin" || fail "whisper model"
+  inst "Whisper small multilingual model (~465 MB)"
+  curl -fL -s -o "$MODELS/ggml-small.bin" https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin \
+    && WHISPER_MODEL="$MODELS/ggml-small.bin" || fail "whisper model"
 fi
 [[ -n "$WHISPER_MODEL" ]] && ok "Whisper model: $WHISPER_MODEL"
 

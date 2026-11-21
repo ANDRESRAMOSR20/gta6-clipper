@@ -219,9 +219,11 @@ def chat_spikes(chat_file):
     return out
 
 
-def transcribe(wav, out_base, words=False):
+def transcribe(wav, out_base, words=False, lang=None):
     model = CFG.get("whisper_model") or os.path.expanduser("~/.cache/whisper-cpp/ggml-small.bin")
-    cmd = ["whisper-cli", "-m", model, "-f", str(wav), "-l", "en", "-np", "-mc", "0", "-oj", "-of", str(out_base)]
+    # English-only (.en) models can't do anything else; multilingual ones auto-detect unless told
+    lang = "en" if model.endswith(".en.bin") else (lang or CFG.get("language") or "auto")
+    cmd = ["whisper-cli", "-m", model, "-f", str(wav), "-l", lang, "-np", "-mc", "0", "-oj", "-of", str(out_base)]
     if words:
         cmd += ["-ml", "1", "-sow", "-ojf"]
     r = run(cmd)
@@ -287,7 +289,10 @@ def prep_one(url, cookies, force=False):
     chat_file = next(iter(rd.glob("chat*.live_chat.json")), None)
     chat = chat_spikes(chat_file)
     wav.unlink(missing_ok=True)
-    (rd / "whisper.json").unlink(missing_ok=True)
+    wj = rd / "whisper.json"
+    info["lang"] = json.loads(wj.read_text()).get("result", {}).get("language") if wj.exists() else None
+    (rd / "stream.json").write_text(json.dumps(info, indent=2))
+    wj.unlink(missing_ok=True)
     (rd / "transcript.json").write_text(json.dumps(segs))
     (rd / "signals.json").write_text(json.dumps({"loud": loud, "chat": chat}, indent=1))
 
@@ -558,11 +563,11 @@ def caption_frames(words, hook, seam_y, cap_y, dur, outdir):
     return lst
 
 
-def clip_words(src, ss, dur, work):
+def clip_words(src, ss, dur, work, lang=None):
     wav = work / "w.wav"
     run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{ss:.2f}", "-t", f"{dur:.2f}", "-i", str(src),
          "-ac", "1", "-ar", "16000", str(wav)])
-    segs = transcribe(wav, work / "words", words=True)
+    segs = transcribe(wav, work / "words", words=True, lang=lang)
     words = []
     for s in segs:
         t = s["text"].strip()
@@ -608,7 +613,7 @@ def render_one(rd, info, c, n, cookies, keep, local_src=None, src_start=None):
         fc = {"mode": "gameplay"}
     elif forced == "cam":
         fc = {"mode": "cam", "face": fc["face"]}
-    words = clip_words(src, ss, dur, work)
+    words = clip_words(src, ss, dur, work, info.get("lang"))
     if fc["mode"] == "facecam":
         L, T, cw, ch = fc["box"]
         top_h = int(min(960, max(560, 1080 * ch / cw)))
