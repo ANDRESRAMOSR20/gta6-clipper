@@ -225,7 +225,12 @@ def transcribe(wav, out_base, words=False, lang=None):
     lang = "en" if model.endswith(".en.bin") else (lang or CFG.get("language") or "auto")
     cmd = ["whisper-cli", "-m", model, "-f", str(wav), "-l", lang, "-np", "-mc", "0", "-oj", "-of", str(out_base)]
     if words:
-        cmd += ["-ml", "1", "-sow", "-ojf"]
+        # Word captions need accurate timing: flash attention (whisper.cpp's default) skews word timestamps by
+        # seconds, and DTW token alignment fixes the remaining early starts. Only used on short clip audio.
+        cmd += ["-ml", "1", "-sow", "-ojf", "-nfa"]
+        preset = re.sub(r"^ggml-|\.bin$", "", Path(model).name).replace("-", ".")
+        if preset in DTW_PRESETS:
+            cmd += ["-dtw", preset]
     r = run(cmd)
     if r.returncode != 0:
         raise RuntimeError("whisper failed: " + r.stderr[-400:])
@@ -234,8 +239,17 @@ def transcribe(wav, out_base, words=False, lang=None):
     for s in data.get("transcription", []):
         txt = s.get("text", "").strip()
         if txt:
-            segs.append({"start": s["offsets"]["from"] / 1000, "end": s["offsets"]["to"] / 1000, "text": txt})
+            start, end = s["offsets"]["from"] / 1000, s["offsets"]["to"] / 1000
+            dtw = [t["t_dtw"] for t in s.get("tokens", []) if t.get("t_dtw", -1) >= 0 and not t["text"].startswith("[_")]
+            if dtw:  # t_dtw is in 10 ms units
+                start = dtw[0] / 100
+                end = max(end, start + 0.05)
+            segs.append({"start": start, "end": end, "text": txt})
     return segs
+
+
+DTW_PRESETS = {"tiny", "tiny.en", "base", "base.en", "small", "small.en", "medium", "medium.en",
+               "large.v1", "large.v2", "large.v3", "large.v3.turbo"}
 
 
 def prep_one(url, cookies, force=False):
