@@ -12,7 +12,7 @@
 Step 3 (picking) is done by the Claude Code session itself (no API keys); see SKILL.md.
 Run with the skill's venv:  .venv/bin/python scripts/gta6clip.py <command>
 """
-import argparse, concurrent.futures as cf, datetime as dt, json, math, os, re, shutil
+import argparse, concurrent.futures as cf, csv, datetime as dt, json, math, os, re, shutil
 import statistics, subprocess, sys, time, urllib.request
 from pathlib import Path
 
@@ -652,11 +652,30 @@ def render_one(rd, info, c, n, cookies, keep, local_src=None, src_start=None):
             f"Source: {info['streamer']}, {info['webpage_url']} at {hms(c['_s'])}\n"
             f"Category: {c.get('category')}  Score: {c.get('score')}  Layout: {fc['mode']}\n")
     out.with_suffix(".txt").write_text(post)
+    log_clip({"created": dt.datetime.now().isoformat(timespec="minutes"), "clip_file": str(out),
+              "streamer": info["streamer"], "title": c.get("title", ""), "hashtags": tags,
+              "source": info["webpage_url"], "stream_at": hms(c["_s"]), "length_s": round(dur), "score": c.get("score")})
     if not keep:
         shutil.rmtree(work, ignore_errors=True)
         if local_src is not None:
             Path(local_src).unlink(missing_ok=True)
     return out, fc["mode"]
+
+
+LOG_COLS = ["created", "clip_file", "streamer", "title", "hashtags", "source", "stream_at", "length_s", "score",
+            "platform", "account", "post_url", "views_24h", "views_7d", "campaign", "earnings_usd"]
+
+
+def log_clip(row):
+    """Append one row to RUNS/clips.csv: the tracking sheet. The user fills platform..earnings after posting."""
+    f = RUNS / "clips.csv"
+    new = not f.exists()
+    # ponytail: plain append, no lock; one short line per write, fine for a few concurrent renders
+    with f.open("a", newline="", encoding="utf-8-sig" if new else "utf-8") as fh:
+        w = csv.DictWriter(fh, LOG_COLS, extrasaction="ignore")
+        if new:
+            w.writeheader()
+        w.writerow(row)
 
 
 def cmd_render(a):

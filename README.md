@@ -56,6 +56,7 @@ Open Claude Code and say:
 - **live clip** `<link>` (for a stream that's live right now)
 
 Clips land in `~/GTA6-Clips/`. Each one has an `.mp4` and a `.txt` with the title, caption and hashtags.
+Every clip also gets a row in `~/GTA6-Clips/clips.csv` (open it in Google Sheets or Excel). Fill in platform, account, post URL, views, campaign and earnings after you post, to see which streamers and platforms pay off.
 
 ## How it works
 

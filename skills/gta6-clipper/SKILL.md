@@ -59,6 +59,8 @@ once. If you're running on a local Ollama model, skip subagents and do the strea
 edges, downloads only those minutes, finds the facecam, stacks facecam on top of gameplay (or blurred
 full-frame if there's no facecam), burns in the hook title + word-by-word captions, normalises audio and
 writes `clips/clip_NN_<title>.mp4` + `clip_NN_<title>.txt` (title, post caption, hashtags) + `summary.json`.
+Each clip is also appended to `~/GTA6-Clips/clips.csv` (tracking sheet; the user fills platform, account,
+post URL, views, campaign and earnings after posting). Mention it when you report the clips.
 
 - If fewer than 3 clips came out because scores were low, say so; offer `--min-score 6` rather than
   quietly lowering the bar.
