@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GTA 6 Clipper setup: checks what this Mac needs, installs what's missing, says when it's ready.
+# GTA 6 Clipper setup: checks what this computer needs (macOS or Arch-based Linux), installs what's missing, says when it's ready.
 # Safe to re-run any time.
 set -uo pipefail
 
@@ -13,23 +13,35 @@ fail() { printf "  [MISSING] %s\n" "$1"; FAILED=1; }
 FAILED=0
 
 echo "GTA 6 Clipper setup"
-if [[ "$(uname)" != "Darwin" ]]; then
-  echo "This is the Mac version. On Windows, install the Windows version instead:"
+OS="$(uname)"
+if [[ "$OS" != "Darwin" && "$OS" != "Linux" ]]; then
+  echo "This version supports macOS and Linux. On Windows, install the Windows version instead:"
   echo "  Open PowerShell (Start -> type PowerShell) and paste:"
   echo "  irm https://raw.githubusercontent.com/vossashtonai/gta6-clipper-windows/main/install.ps1 | iex"
   echo "  (or see https://github.com/vossashtonai/gta6-clipper-windows)"
   exit 1
 fi
 
-# 1. Homebrew
-if command -v brew >/dev/null 2>&1; then ok "Homebrew"; else
-  fail "Homebrew (install from https://brew.sh then re-run setup)"; exit 1; fi
+# 1. Package manager: Homebrew on macOS, pacman on Arch-based Linux (Arch, CachyOS, EndeavourOS, Manjaro)
+if [[ "$OS" == "Darwin" ]]; then
+  if command -v brew >/dev/null 2>&1; then ok "Homebrew"; else
+    fail "Homebrew (install from https://brew.sh then re-run setup)"; exit 1; fi
+  PKG_INSTALL=(brew install)
+elif command -v pacman >/dev/null 2>&1; then
+  ok "pacman"
+  # ponytail: Arch-only; add apt/dnf branches when someone needs them
+  PKG_INSTALL=(sudo pacman -S --needed --noconfirm)
+else
+  fail "pacman (only Arch-based Linux is supported; install ffmpeg, whisper-cpp and deno by hand, then re-run setup)"
+  PKG_INSTALL=(false)
+fi
 
 # 2. Command-line tools: ffmpeg (cutting/encoding), whisper-cpp (local transcript), deno (YouTube downloads)
 for pair in "ffmpeg:ffmpeg" "whisper-cli:whisper-cpp" "deno:deno"; do
-  bin="${pair%%:*}"; formula="${pair##*:}"
-  if command -v "$bin" >/dev/null 2>&1; then ok "$formula"; else
-    inst "$formula"; brew install "$formula" >/dev/null 2>&1 && ok "$formula" || fail "$formula (brew install $formula)"; fi
+  bin="${pair%%:*}"; pkg="${pair##*:}"
+  if command -v "$bin" >/dev/null 2>&1; then ok "$pkg"; else
+    inst "$pkg"; "${PKG_INSTALL[@]}" "$pkg" >/dev/null 2>&1 && command -v "$bin" >/dev/null 2>&1 && ok "$pkg" \
+      || fail "$pkg (${PKG_INSTALL[*]} $pkg)"; fi
 done
 
 # 3. uv (fast Python + venv manager)
@@ -61,15 +73,23 @@ if [[ ! -f "$YUNET" ]]; then
 fi
 [[ -s "$YUNET" ]] && ok "Face detector" || fail "Face detector"
 
-# 7. Fonts (macOS ships these)
-[[ -f "/System/Library/Fonts/Supplemental/Arial Black.ttf" ]] && ok "Caption font (Arial Black)" || fail "Arial Black font"
+# 7. Caption font: Arial Black (macOS ships it), else the first heavy font fontconfig finds
+FONT=""
+if [[ -f "/System/Library/Fonts/Supplemental/Arial Black.ttf" ]]; then
+  FONT="/System/Library/Fonts/Supplemental/Arial Black.ttf"
+elif command -v fc-list >/dev/null 2>&1; then
+  for q in "Arial Black" "Impact" "Anton" "DejaVu Sans:style=Bold" "Liberation Sans:style=Bold"; do
+    FONT="$(fc-list -f '%{file}\n' "$q" | head -n1)"; [[ -n "$FONT" ]] && break; done
+fi
+if [[ -n "$FONT" ]]; then ok "Caption font: $FONT"; else
+  fail "Caption font (Linux: sudo pacman -S ttf-dejavu, or install Anton / ttf-ms-fonts for the Mac look)"; fi
 
 # 8. Free space check: audio-only download keeps this small, but warn early
-FREE_GB=$(df -g "$SKILL_DIR" | awk 'NR==2{print $4}')
+FREE_GB=$(( $(df -Pk "$SKILL_DIR" | awk 'NR==2{print $4}') / 1048576 ))
 if (( FREE_GB < 3 )); then echo "  [warn]    Only ${FREE_GB} GB free. Each stream needs ~0.5-1 GB while it runs."; else ok "Disk space (${FREE_GB} GB free)"; fi
 
 cat > "$SKILL_DIR/config.json" <<EOF
-{"whisper_model": "$WHISPER_MODEL", "yunet_model": "$YUNET"}
+{"whisper_model": "$WHISPER_MODEL", "yunet_model": "$YUNET", "font": "$FONT"}
 EOF
 
 if [[ $FAILED -eq 0 ]]; then

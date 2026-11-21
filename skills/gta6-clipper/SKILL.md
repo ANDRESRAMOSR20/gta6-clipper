@@ -1,12 +1,12 @@
 ---
 name: gta6-clipper
-description: GTA 6 Clipper. Turns GTA 6 streams into ready-to-post vertical clips (facecam on top, gameplay below, hook title, word-by-word captions, post caption + hashtags). Activates on "set up the GTA 6 clipper", "clip this stream <link>", "find me today's biggest GTA 6 streams and clip them", /gta6-clipper, /clip, or any request to clip a YouTube, Twitch or Kick stream. Downloads audio only, transcribes on the Mac, marks loud moments and chat spikes, the Claude session itself reads the transcript 12 minutes at a time and scores moments (no API keys), then downloads only the needed minutes and renders 3 clips per stream. Works on a Claude subscription or free via Ollama (ollama launch claude). Mac only.
+description: GTA 6 Clipper. Turns GTA 6 streams into ready-to-post vertical clips (facecam on top, gameplay below, hook title, word-by-word captions, post caption + hashtags). Activates on "set up the GTA 6 clipper", "clip this stream <link>", "find me today's biggest GTA 6 streams and clip them", /gta6-clipper, /clip, or any request to clip a YouTube, Twitch or Kick stream. Downloads audio only, transcribes on this computer, marks loud moments and chat spikes, the Claude session itself reads the transcript 12 minutes at a time and scores moments (no API keys), then downloads only the needed minutes and renders 3 clips per stream. Works on a Claude subscription or free via Ollama (ollama launch claude). macOS and Arch-based Linux.
 ---
 
 # GTA 6 Clipper
 
 Stream link (YouTube, Twitch, Kick) or nothing -> 3 ready-to-post 1080x1920 clips per stream.
-Everything except the picking runs on this Mac. The picking is done by YOU (this Claude Code session),
+Everything except the picking runs on this computer. The picking is done by YOU (this Claude Code session),
 so it runs on the user's Claude subscription, or on a local model through Ollama. No API keys.
 
 `S` = this skill's folder. Always run Python through the skill's venv:
@@ -14,13 +14,14 @@ so it runs on the user's Claude subscription, or on a local model through Ollama
 
 ## 0. "Set up the GTA 6 clipper"
 
-On Windows this Mac version will not work: tell the user to install the Windows version
+On Windows this version will not work: tell the user to install the Windows version
 (https://github.com/vossashtonai/gta6-clipper-windows, one PowerShell command:
 `irm https://raw.githubusercontent.com/vossashtonai/gta6-clipper-windows/main/install.ps1 | iex`).
 
-Run `bash "$S/scripts/setup.sh"`. It checks Homebrew, ffmpeg, whisper-cpp, deno, uv, the Python venv
+Run `bash "$S/scripts/setup.sh"`. It checks Homebrew (macOS) or pacman (Linux), ffmpeg, whisper-cpp, deno, uv, the Python venv
 (yt-dlp, OpenCV, Pillow), the Whisper model and the face detector, installs what's missing and prints
-READY or what is still missing. Tell the user in plain words what was installed and that it's ready.
+READY or what is still missing. On Linux, if a [MISSING] line shows a `sudo pacman` command, ask the user to
+run it themselves (type `! <command>` in Claude Code), then re-run setup. Tell the user in plain words what was installed and that it's ready.
 If any command later says "Not set up yet", run setup first. Re-run setup if YouTube downloads start
 failing (it updates yt-dlp).
 
@@ -31,7 +32,7 @@ failing (it updates yt-dlp).
   show the list, then `prep` all of the URLs it printed. Don't wait for approval unless the user asked to choose.
 - Age-restricted YouTube streams (common with GTA) and Kick need the browser login: add `--cookies chrome`
   (or safari/firefox). If a download fails with "Sign in to confirm your age" / 403, retry with it.
-- `--jobs 2` (default) preps 2 streams at once. Don't go higher on a 16 GB Mac.
+- `--jobs 2` (default) preps 2 streams at once. Don't go higher on a 16 GB machine.
 - Long streams take a while (4 h stream: a few min download + ~8-12 min transcript). Run prep in the
   background for 2+ streams and tell the user it's running.
 
@@ -85,5 +86,5 @@ Remind the user: watch every clip before posting, and only clip streamers who ar
 ## Free mode (no subscription)
 
 Same skill, same prompts. The user installs Ollama, pulls a model sized to their MEMORY (Apple menu ->
-About This Mac -> Memory): 16 GB -> `qwen3.5:9b`, 32 GB+ -> `qwen3.5:27b`, then runs `ollama launch claude`
+About This Mac -> Memory, or `free -h` on Linux): 16 GB -> `qwen3.5:9b`, 32 GB+ -> `qwen3.5:27b`, then runs `ollama launch claude`
 and picks the model. Be honest if asked: it's slower and the picks are rougher than Claude's.

@@ -6,7 +6,7 @@
     {
       "name": "gta6-clipper",
       "source": "./",
-      "description": "Clip GTA 6 streams into ready-to-post vertical clips, from a finished stream or live. Mac only.",
+      "description": "Clip GTA 6 streams into ready-to-post vertical clips, from a finished stream or live. macOS and Arch-based Linux.",
       "version": "1.0.0",
       "author": { "name": "Ashton Voss AI" },
       "category": "productivity"

@@ -7,7 +7,7 @@ gameplay below, a hook title, word-by-word captions, and a post caption with has
 ## What it does, in 4 steps
 
 1. **Downloads only the audio.** A 4-hour stream is a couple hundred MB, not a giant video file.
-2. **Listens to the whole stream on your Mac:** a transcript, where the streamer got loud, and (on YouTube
+2. **Listens to the whole stream on your computer:** a transcript, where the streamer got loud, and (on YouTube
    replays) where chat suddenly sped up.
 3. **The AI reads the transcript 12 minutes at a time** and picks what people share: first reactions,
    crazy discoveries, freakouts, funny fails, hot takes. Every moment gets a score, and anything that
@@ -19,17 +19,17 @@ gameplay below, a hook title, word-by-word captions, and a post caption with has
 
 ## Way 1: your Claude subscription (best)
 
-Plans start at $20/month. No API keys. Everything except the picking runs on your Mac.
+Plans start at $20/month. No API keys. Everything except the picking runs on your computer.
 
 1. Put this `gta6-clipper` folder in `~/.claude/skills/`.
-2. Open Claude Code and say: **set up the GTA 6 clipper**. It checks what your Mac needs, installs what's
+2. Open Claude Code and say: **set up the GTA 6 clipper**. It checks what your computer needs, installs what's
    missing and tells you when it's ready.
 3. Say: **clip this stream** and paste the link. Or: **find me today's biggest GTA 6 streams and clip them**.
 
 ## Way 2: free (no subscription, no API key)
 
 1. Install [Ollama](https://ollama.com) and Claude Code (both free).
-2. Check your memory, not your storage: Apple menu -> About This Mac -> Memory.
+2. Check your memory, not your storage: Apple menu -> About This Mac -> Memory (Linux: `free -h`).
 3. 16 GB -> `ollama pull qwen3.5:9b`. 32 GB or more -> `ollama pull qwen3.5:27b`.
 4. In Terminal: `ollama launch claude` and pick your model.
 5. Same prompts as Way 1.
@@ -39,7 +39,7 @@ forth. It still beats scrubbing a stream by hand.
 
 ## Good to know
 
-- Mac only for now.
+- macOS and Arch-based Linux (Arch, CachyOS, EndeavourOS, Manjaro).
 - Age-restricted YouTube streams (common with GTA) and Kick need your browser login: tell Claude to use
   `--cookies chrome`.
 - YouTube streams that are still live can be clipped once the replay is up. Twitch archives work while live.

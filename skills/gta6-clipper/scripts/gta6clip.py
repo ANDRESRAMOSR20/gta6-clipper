@@ -278,7 +278,7 @@ def prep_one(url, cookies, force=False):
     src.unlink(missing_ok=True)
     t_dl = time.time()
 
-    log(f"[{streamer}] 2/2 transcribing on this Mac + scanning for loud moments and chat spikes")
+    log(f"[{streamer}] 2/2 transcribing on this computer + scanning for loud moments and chat spikes")
     with cf.ThreadPoolExecutor(2) as ex:
         fs = ex.submit(transcribe, wav, rd / "whisper")
         fl = ex.submit(loud_moments, wav)
@@ -464,8 +464,9 @@ def find_facecam(video, W, H):
 
 def font(size):
     from PIL import ImageFont
-    for f in ("/System/Library/Fonts/Supplemental/Arial Black.ttf", "/System/Library/Fonts/Supplemental/Impact.ttf"):
-        if Path(f).exists():
+    for f in (CFG.get("font") or "", "/System/Library/Fonts/Supplemental/Arial Black.ttf",
+              "/System/Library/Fonts/Supplemental/Impact.ttf"):
+        if f and Path(f).is_file():
             return ImageFont.truetype(f, size)
     return ImageFont.load_default()
 
@@ -688,7 +689,7 @@ def main():
     d = sp.add_parser("discover"); d.add_argument("--limit", type=int, default=7)
     pr = sp.add_parser("prep"); pr.add_argument("urls", nargs="+")
     pr.add_argument("--cookies", help="chrome / safari / firefox, or a cookies.txt path (age-restricted YouTube, Kick)")
-    pr.add_argument("--jobs", type=int, default=2, help="streams processed at once (2 is safe on a 16 GB Mac)")
+    pr.add_argument("--jobs", type=int, default=2, help="streams processed at once (2 is safe on a 16 GB machine)")
     pr.add_argument("--force", action="store_true")
     s = sp.add_parser("status"); s.add_argument("run")
     r = sp.add_parser("render"); r.add_argument("run")

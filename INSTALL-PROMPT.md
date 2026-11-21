@@ -2,12 +2,12 @@
 
 **Title:** GTA 6 Clipper: free Claude Code skills (finished + live)
 
-Here are both GTA 6 clipper skills from the video. Free, Mac only.
+Here are both GTA 6 clipper skills from the video. Free, macOS and Arch-based Linux.
 
 **1. Open Claude Code and paste this:**
 
 ```text
-Install the GTA 6 Clipper skills from https://github.com/vossashtonai/gta6-clipper.
+Install the GTA 6 Clipper skills from https://github.com/ANDRESRAMOSR20/gta6-clipper.
 Clone the repo to a temporary folder, then copy BOTH folders inside its skills/ folder
 (gta6-clipper and gta6-live-clipper) into ~/.claude/skills/ so they sit side by side.
 Then run: bash ~/.claude/skills/gta6-clipper/scripts/setup.sh

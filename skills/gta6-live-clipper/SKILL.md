@@ -1,13 +1,13 @@
 ---
 name: gta6-live-clipper
-description: GTA 6 LIVE Clipper. Clips GTA 6 streams WHILE they're live: records a rolling buffer on the Mac, transcribes each minute as it lands, the Claude session picks moments every 5 minutes and clips are rendered straight from the buffer, ready to post ~5-8 minutes after the moment happens. Activates on "clip this stream live", "live clip <link>", "watch <streamer> and clip as it happens", "start the live clipper", /gta6-live, or any request to clip a stream that is live right now. Same output as gta6-clipper (facecam on top, gameplay below, hook, word captions, post caption + hashtags). For finished streams / VODs use gta6-clipper instead.
+description: GTA 6 LIVE Clipper. Clips GTA 6 streams WHILE they're live: records a rolling buffer on this computer, transcribes each minute as it lands, the Claude session picks moments every 5 minutes and clips are rendered straight from the buffer, ready to post ~5-8 minutes after the moment happens. Activates on "clip this stream live", "live clip <link>", "watch <streamer> and clip as it happens", "start the live clipper", /gta6-live, or any request to clip a stream that is live right now. Same output as gta6-clipper (facecam on top, gameplay below, hook, word captions, post caption + hashtags). For finished streams / VODs use gta6-clipper instead.
 ---
 
 # GTA 6 LIVE Clipper
 
 Same engine and output as the `gta6-clipper` skill (needs that one set up first, it shares its venv,
 models and render code). The difference: nothing gets downloaded twice. The live stream is recorded into
-1-minute segments on this Mac, only the last `--buffer-min` minutes are kept, and clips are cut from them.
+1-minute segments on this computer, only the last `--buffer-min` minutes are kept, and clips are cut from them.
 
 `L` = this skill's folder, `V` = the gta6-clipper folder next to it. Run:
 `"$V/.venv/bin/python" "$L/scripts/live.py" <command>`. Quote paths.
@@ -19,7 +19,7 @@ If it says "Set up the GTA 6 clipper first", run `bash "$V/scripts/setup.sh"`.
 `start <url> [<url> ...]`: Twitch channel (`https://www.twitch.tv/kaicenat`), YouTube live link, or Kick.
 Options: `--quality 720` (default; 1080 doubles disk), `--buffer-min 15`, `--window-min 5`,
 `--cookies chrome` (Kick, age-restricted YouTube). Each stream gets a background recorder and a run folder.
-Max 2 streams on a 16 GB Mac (each transcribes a minute of audio every minute). If it says NOT LIVE, the
+Max 2 streams on a 16 GB machine (each transcribes a minute of audio every minute). If it says NOT LIVE, the
 stream is finished: use gta6-clipper.
 
 ## 2. The loop (you run this until the stream ends or the user says stop)
