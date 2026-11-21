@@ -44,6 +44,14 @@ for pair in "ffmpeg:ffmpeg" "whisper-cli:whisper-cpp" "deno:deno"; do
       || fail "$pkg (${PKG_INSTALL[*]} $pkg)"; fi
 done
 
+# 2b. NVIDIA GPU on Linux: CUDA backend so whisper-cpp transcribes on the GPU instead of the CPU
+if [[ "$OS" == "Linux" ]] && command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi -L >/dev/null 2>&1; then
+  if [[ -f /usr/lib/ggml/libggml-cuda.so ]]; then ok "ggml-cuda (Whisper on GPU)"; else
+    inst "ggml-cuda (Whisper on GPU; pulls in CUDA, a few GB)"
+    "${PKG_INSTALL[@]}" ggml-cuda >/dev/null 2>&1 && ok "ggml-cuda (Whisper on GPU)" \
+      || printf "  [skip]    ggml-cuda failed; Whisper will run on the CPU (slower). Try: %s ggml-cuda\n" "${PKG_INSTALL[*]}"; fi
+fi
+
 # 3. uv (fast Python + venv manager)
 if command -v uv >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/uv" ]]; then ok "uv"; else
   inst "uv"; curl -LsSf https://astral.sh/uv/install.sh | sh >/dev/null 2>&1 && ok "uv" || fail "uv"; fi

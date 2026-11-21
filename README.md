@@ -43,7 +43,7 @@ cp -R /tmp/gta6-clipper/skills/gta6-clipper /tmp/gta6-clipper/skills/gta6-live-c
 bash ~/.claude/skills/gta6-clipper/scripts/setup.sh
 ```
 
-Setup checks what your computer needs and installs what's missing: system packages via Homebrew on macOS or pacman on Linux (FFmpeg, whisper-cpp, Deno; Linux asks for your sudo password), a Python environment (yt-dlp, OpenCV, Pillow) and the Whisper speech model (~465 MB). Re-run it any time downloads start failing; it updates yt-dlp.
+Setup checks what your computer needs and installs what's missing: system packages via Homebrew on macOS or pacman on Linux (FFmpeg, whisper-cpp, Deno, plus ggml-cuda on Linux with an NVIDIA GPU so Whisper runs on the GPU; Linux asks for your sudo password), a Python environment (yt-dlp, OpenCV, Pillow) and the Whisper speech model (~465 MB). Re-run it any time downloads start failing; it updates yt-dlp.
 
 ## Use it
 
