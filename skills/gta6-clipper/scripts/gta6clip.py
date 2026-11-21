@@ -675,7 +675,8 @@ def log_clip(row):
         w = csv.DictWriter(fh, LOG_COLS, extrasaction="ignore")
         if new:
             w.writeheader()
-        w.writerow(row)
+        # streamer names / titles come from the platform: neutralise spreadsheet formulas (=, +, -, @)
+        w.writerow({k: "'" + v if isinstance(v, str) and v[:1] in "=+-@\t\r" else v for k, v in row.items()})
 
 
 def cmd_render(a):
