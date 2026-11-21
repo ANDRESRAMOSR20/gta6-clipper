@@ -242,8 +242,8 @@ def transcribe(wav, out_base, words=False, lang=None):
             start, end = s["offsets"]["from"] / 1000, s["offsets"]["to"] / 1000
             dtw = [t["t_dtw"] for t in s.get("tokens", []) if t.get("t_dtw", -1) >= 0 and not t["text"].startswith("[_")]
             if dtw:  # t_dtw is in 10 ms units
-                start = dtw[0] / 100
-                end = max(end, start + 0.05)
+                # shift the word to the DTW start but keep its length, so it doesn't flash by
+                start, end = dtw[0] / 100, max(end, dtw[0] / 100 + max(0.15, end - start))
             segs.append({"start": start, "end": end, "text": txt})
     return segs
 
@@ -592,6 +592,9 @@ def clip_words(src, ss, dur, work, lang=None):
             continue
         words.append({"t": t, "s": s["start"], "e": s["end"]})
     wav.unlink(missing_ok=True)
+    # Whisper word ends are unreliable: keep each word on screen until the next one starts (max 1 s)
+    for w, nxt in zip(words, words[1:]):
+        w["e"] = max(w["e"], min(nxt["s"], w["s"] + 1.0))
     return words
 
 
