@@ -13,7 +13,7 @@ Step 3 (picking) is done by the Claude Code session itself (no API keys); see SK
 Run with the skill's venv:  .venv/bin/python scripts/gta6clip.py <command>
 """
 import argparse, concurrent.futures as cf, csv, datetime as dt, json, math, os, re, shutil
-import statistics, subprocess, sys, time, urllib.request
+import statistics, subprocess, sys, time, unicodedata, urllib.request
 from pathlib import Path
 
 SKILL = Path(__file__).resolve().parent.parent
@@ -55,7 +55,8 @@ def parse_ts(v):
 
 
 def slug(s, n=40):
-    s = re.sub(r"[^a-zA-Z0-9]+", "-", s or "stream").strip("-").lower()
+    s = unicodedata.normalize("NFKD", s or "stream").encode("ascii", "ignore").decode()  # dólares -> dolares
+    s = re.sub(r"[^a-zA-Z0-9]+", "-", s).strip("-").lower()
     return s[:n] or "stream"
 
 
